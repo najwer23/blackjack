@@ -22,7 +22,24 @@ function initOnLoad() {
 
     let deckArrObj = loadDeckObj(deckArrJson);
 
-    // deckArrObj = fisherShuffle()
+    deckArrObj = fisherShuffleCardsObj(deckArrObj);
+
+    console.log(deckArrObj)
+
+}
+
+function fisherShuffleCardsObj(deckArrObj) {
+    let randomNumber;
+    let cardObj;
+    
+    for (let i=0; i<deckArrObj.length; i++) {
+        randomNumber = Math.floor(Math.random() * deckArrObj.length);
+        cardObj = deckArrObj[randomNumber];
+        deckArrObj[randomNumber] = deckArrObj[i];
+        deckArrObj[i] =  cardObj;
+    }
+
+    return deckArrObj;
 }
 
 function loadDeckObj(deckArrJson) {
