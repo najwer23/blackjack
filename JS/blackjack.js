@@ -13,6 +13,11 @@ window.onload = function () {
 }
 
 function initOnLoad() {
+    let deckArrObj = loadNewDeck()
+    deckArrObj = fisherShuffleCardsObj(deckArrObj);
+}
+
+function loadNewDeck() {
     let deckArrJson = [].concat(
         load13JsonCards("Clubs"),
         load13JsonCards("Diamonds"),
@@ -21,11 +26,7 @@ function initOnLoad() {
     )
 
     let deckArrObj = loadDeckObj(deckArrJson);
-
-    deckArrObj = fisherShuffleCardsObj(deckArrObj);
-
-    console.log(deckArrObj)
-
+    return deckArrObj;
 }
 
 function fisherShuffleCardsObj(deckArrObj) {
