@@ -1,7 +1,10 @@
 
 class Card {
     constructor(params) {
-       
+        this.name = params.name;
+        this.value = params.value;
+        this.suit = params.suit;
+        this.srcPath = null;
     }
 }
 
@@ -17,8 +20,21 @@ function initOnLoad() {
         load13JsonCards("Spades"),
     )
 
+    let deckArrObj = loadDeckObj(deckArrJson);
+
+    // deckArrObj = fisherShuffle()
+}
+
+function loadDeckObj(deckArrJson) {
     let deckArrObj = new Array();
-    console.log(cardsJson)
+    let cardObj;
+
+    for (let i=0; i<deckArrJson.length; i++) {
+        cardObj = new Card(deckArrJson[i])
+        deckArrObj.push(cardObj)
+    }
+
+    return deckArrObj;
 }
 
 function load13JsonCards(suit) {
