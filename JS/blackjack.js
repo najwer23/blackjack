@@ -89,8 +89,33 @@ window.onload = function () {
 function runBlackjack(gameTable) {
     gameTable.createGame();
     let players = gameTable.players;
-    
-    console.log(players)
+    updateCardsOnTheTable(players);
+}
+
+function updateCardsOnTheTable(players) {
+    let cardsArr, partClassName, handleClassElement, cardToShow;
+    for(let i=0; i<players.length; i++) {
+        for (let j=0; j<players[i].handCards.length; j++) {
+            
+            partClassName = j == 0 ? "left" : "right";
+            cardToShow = "";
+            cardsArr = players[i].handCards[j];
+            
+            for (let k=0; k<cardsArr.length; k++) {
+                cardToShow += "" + cardsArr[k].name + " " + cardsArr[k].suit + " " + cardsArr[k].value + "<br>";
+            }
+
+            if (players[i].name == "Croupier") {
+                handleClassElement = document.querySelector(".dealer-cards-column-"+partClassName+"-view");
+                handleClassElement.innerHTML = cardToShow;
+            } 
+
+            if (players[i].name != "Croupier") {
+                handleClassElement = document.querySelectorAll(".player-cards-column-"+partClassName+"-view")[i-1];
+                handleClassElement.innerHTML = cardToShow;
+            } 
+        } 
+    }
 }
 
 function load13JsonCards(suit) {
