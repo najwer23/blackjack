@@ -77,16 +77,20 @@ class GameTable {
 
 window.onload = function () {
     let players = [
-        new Player("Dealer"),
+        new Player("Croupier"),
         new Player("Player")
     ];
 
-    console.log(players);
-
     let gameTable = new GameTable(players);
+
+    runBlackjack(gameTable);
+}
+
+function runBlackjack(gameTable) {
     gameTable.createGame();
-    gameTable.getCardFromDeck("Player")
-    console.log(gameTable);    
+    let players = gameTable.players;
+    
+    console.log(players)
 }
 
 function load13JsonCards(suit) {
