@@ -7,26 +7,17 @@ class Card {
     }
 }
 
+class Player {
+    constructor(name) {
+        this.name = name;
+        this.handCards = [new Array(), new Array()];
+    }
+}
+
 class GameTable {
-    constructor() {
-        this.deck;
-        this.handPlayer;
-        this.handDealer;
-    }
-
-    startHand() {
-        let handArrObj = new Array();
-        handArrObj.push(this.deck.pop())
-        handArrObj.push(this.deck.pop())
-        return handArrObj;
-    }
-
-    getCardPlayer() {
-        this.handPlayer.push(this.deck.pop());
-    }
-
-    getCardDealer() {
-        this.handDealer.push(this.deck.pop());
+    constructor(players) {
+        this.deck = null;
+        this.players = players;
     }
 
     fisherShuffleDeck() {
@@ -49,7 +40,7 @@ class GameTable {
             load13JsonCards("Spades"),
         )
 
-        let deckArrObj = [];
+        let deckArrObj = new Array();
         let cardObj;
 
         for (let i=0; i<deckArrJson.length; i++) {
@@ -60,20 +51,42 @@ class GameTable {
         this.deck = deckArrObj;
     }
 
+    getCardFromDeck(playerName, isSplit = false) {
+        for (let i=0; i< this.players.length; i++) {
+            if (playerName == this.players[i].name) {
+                let indexHand = isSplit ? 1 : 0;
+                this.players[i].handCards[indexHand].push(this.deck.pop());
+            }
+        }
+    }
+
+    createStartHand() {
+        for (let i=0; i< this.players.length; i++) {
+            this.getCardFromDeck(this.players[i].name)
+            this.getCardFromDeck(this.players[i].name)
+        }
+    }
+
     createGame() {
         this.loadNewDeck();
         this.fisherShuffleDeck();
-        this.handPlayer = this.startHand();
-        this.handDealer = this.startHand();
+        this.createStartHand();
     }
 
 }
 
 window.onload = function () {
-    let gameTable = new GameTable();
-    gameTable.createGame();  
-    gameTable.getCardPlayer();
-    console.log(gameTable);
+    let players = [
+        new Player("Dealer"),
+        new Player("Player")
+    ];
+
+    console.log(players);
+
+    let gameTable = new GameTable(players);
+    gameTable.createGame();
+    gameTable.getCardFromDeck("Player")
+    console.log(gameTable);    
 }
 
 function load13JsonCards(suit) {
