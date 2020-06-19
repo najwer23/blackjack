@@ -114,6 +114,16 @@ function runBlackjack(gameTable) {
                 }
             }
         }
+
+        if (e.target.className == 'button-stand') {
+            let buttons = this.querySelectorAll(".player-cards-column-left .button-stand");
+            for (let i=0; i<buttons.length; i++) {
+                if (e.target == buttons[i]) {
+                    players[i+1].handCards[0].isPass = true;
+                    updateCardsSum(players);
+                }
+            }
+        }
     });
 }
 
@@ -135,7 +145,7 @@ function updateCardsSum(players) {
 
             selectedCardValue = cardsValueAceAs10 > BLACK_JACK ? cardsValueAceAs1 : cardsValueAceAs10;
             players[i].handCards[j].sumCards = selectedCardValue;
-            players[i].handCards[j].isPass = selectedCardValue > BLACK_JACK ? true : false;
+            players[i].handCards[j].isPass = selectedCardValue > BLACK_JACK ? true : players[i].handCards[j].isPass;
         }
     }
 }
