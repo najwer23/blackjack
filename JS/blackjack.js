@@ -78,7 +78,7 @@ class GameTable {
         }
     }
 
-    createGame() {
+    createBlackjack() {
         this.loadNewDeck();
         this.fisherShuffleDeck();
         this.createStartHand();
@@ -98,9 +98,9 @@ window.onload = function () {
 }
 
 function runBlackjack(gameTable) {
-    gameTable.createGame();
+    gameTable.createBlackjack();
     let players = gameTable.players;
-    updateCardsOnTheTable(players);
+    updateCardsOnTheTableForBlackjack(players);
 
     document.querySelector("#players").addEventListener('click', function (e) {
 
@@ -109,8 +109,8 @@ function runBlackjack(gameTable) {
             for (let i=0; i<buttons.length; i++) {
                 if (e.target == buttons[i] && !players[i+1].handCards[0].isPass) {
                     gameTable.getCardFromDeck(players[i+1].name)
-                    updateCardsSum(players);
-                    updateCardsOnTheTable(players);
+                    updateCardsSumForBlackjack(players);
+                    updateCardsOnTheTableForBlackjack(players);
                 }
             }
         }
@@ -120,14 +120,14 @@ function runBlackjack(gameTable) {
             for (let i=0; i<buttons.length; i++) {
                 if (e.target == buttons[i]) {
                     players[i+1].handCards[0].isPass = true;
-                    updateCardsSum(players);
+                    updateCardsSumForBlackjack(players);
                 }
             }
         }
     });
 }
 
-function updateCardsSum(players) {
+function updateCardsSumForBlackjack(players) {
     let cardsValueAceAs1, cardsValueAceAs10, cardsArr, cardValue, selectedCardValue;
     let BLACK_JACK = 21;
 
@@ -150,7 +150,7 @@ function updateCardsSum(players) {
     }
 }
 
-function updateCardsOnTheTable(players) {
+function updateCardsOnTheTableForBlackjack(players) {
     let cardsArr, partClassName, handleClassElement, cardsToShow;
     for (let i=0; i<players.length; i++) {
         for (let j=0; j<players[i].handCards.length; j++) {
