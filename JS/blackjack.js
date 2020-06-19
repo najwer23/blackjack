@@ -90,6 +90,18 @@ function runBlackjack(gameTable) {
     gameTable.createGame();
     let players = gameTable.players;
     updateCardsOnTheTable(players);
+
+    document.querySelector("#players").addEventListener('click', function (e) {
+        if (e.target.className == 'button-hit') {
+            let buttons = this.querySelectorAll(".player-cards-column-left .button-hit");
+            for (let i=0; i<buttons.length; i++) {
+                if (e.target == buttons[i]) {
+                    gameTable.getCardFromDeck(players[i+1].name)
+                    updateCardsOnTheTable(players);
+                }
+            }
+        }
+    });
 }
 
 function updateCardsOnTheTable(players) {
@@ -107,13 +119,15 @@ function updateCardsOnTheTable(players) {
 
             if (players[i].name == "Croupier") {
                 handleClassElement = document.querySelector(".dealer-cards-column-"+partClassName+"-view");
-                handleClassElement.innerHTML = cardsToShow;
             } 
 
             if (players[i].name != "Croupier") {
                 handleClassElement = document.querySelectorAll(".player-cards-column-"+partClassName+"-view")[i-1];
-                handleClassElement.innerHTML = cardsToShow;
             } 
+
+            if (handleClassElement != null) {
+                handleClassElement.innerHTML = cardsToShow;
+            }
         } 
     }
 }
