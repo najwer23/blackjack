@@ -3,7 +3,7 @@ class Card {
         this.name = params.name;
         this.value = params.value;
         this.suit = params.suit;
-        this.srcPath = null;
+        this.srcName = params.srcName;
     }
 }
 
@@ -93,26 +93,26 @@ function runBlackjack(gameTable) {
 }
 
 function updateCardsOnTheTable(players) {
-    let cardsArr, partClassName, handleClassElement, cardToShow;
+    let cardsArr, partClassName, handleClassElement, cardsToShow;
     for(let i=0; i<players.length; i++) {
         for (let j=0; j<players[i].handCards.length; j++) {
             
             partClassName = j == 0 ? "left" : "right";
-            cardToShow = "";
+            cardsToShow = "";
             cardsArr = players[i].handCards[j];
             
             for (let k=0; k<cardsArr.length; k++) {
-                cardToShow += "" + cardsArr[k].name + " " + cardsArr[k].suit + " " + cardsArr[k].value + "<br>";
+                cardsToShow += '<img src="'+"IMG/cards/"+cardsArr[k].srcName+'" width="auto" height="120px">';
             }
 
             if (players[i].name == "Croupier") {
                 handleClassElement = document.querySelector(".dealer-cards-column-"+partClassName+"-view");
-                handleClassElement.innerHTML = cardToShow;
+                handleClassElement.innerHTML = cardsToShow;
             } 
 
             if (players[i].name != "Croupier") {
                 handleClassElement = document.querySelectorAll(".player-cards-column-"+partClassName+"-view")[i-1];
-                handleClassElement.innerHTML = cardToShow;
+                handleClassElement.innerHTML = cardsToShow;
             } 
         } 
     }
@@ -120,19 +120,19 @@ function updateCardsOnTheTable(players) {
 
 function load13JsonCards(suit) {
     let cardsJson = [
-        { "suit": suit, "name": "Ace", "value": 1 },
-        { "suit": suit, "name": "2", "value": 2 },
-        { "suit": suit, "name": "3", "value": 3 },
-        { "suit": suit, "name": "4", "value": 4 },
-        { "suit": suit, "name": "5", "value": 5 },
-        { "suit": suit, "name": "6", "value": 6 },
-        { "suit": suit, "name": "7", "value": 7 },
-        { "suit": suit, "name": "8", "value": 8 },
-        { "suit": suit, "name": "9", "value": 9 },
-        { "suit": suit, "name": "10", "value": 10 },
-        { "suit": suit, "name": "Jack", "value": 10 },
-        { "suit": suit, "name": "Queen", "value": 10 },
-        { "suit": suit, "name": "King", "value": 10 }       
+        { "suit": suit, "name": "Ace", "value": 1, "srcName": suit+"_Ace.png"},
+        { "suit": suit, "name": "2", "value": 2, "srcName": suit+"_2.png" },
+        { "suit": suit, "name": "3", "value": 3, "srcName": suit+"_3.png" },
+        { "suit": suit, "name": "4", "value": 4, "srcName": suit+"_4.png" },
+        { "suit": suit, "name": "5", "value": 5, "srcName": suit+"_5.png" },
+        { "suit": suit, "name": "6", "value": 6, "srcName": suit+"_6.png" },
+        { "suit": suit, "name": "7", "value": 7, "srcName": suit+"_7.png" },
+        { "suit": suit, "name": "8", "value": 8, "srcName": suit+"_8.png" },
+        { "suit": suit, "name": "9", "value": 9, "srcName": suit+"_9.png" },
+        { "suit": suit, "name": "10", "value": 10, "srcName": suit+"_10.png" },
+        { "suit": suit, "name": "Jack", "value": 10, "srcName": suit+"_Jack.png" },
+        { "suit": suit, "name": "Queen", "value": 10, "srcName": suit+"_Queen.png" },
+        { "suit": suit, "name": "King", "value": 10, "srcName": suit+"_King.png" }       
     ]
 
     return cardsJson;
