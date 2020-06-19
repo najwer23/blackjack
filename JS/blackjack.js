@@ -10,7 +10,18 @@ class Card {
 class Player {
     constructor(name) {
         this.name = name;
-        this.handCards = [new Array(), new Array()];
+        this.handCards = [ 
+            { 
+                "cards": new Array(), 
+                "isPass": false,
+                "sumCards": 0
+            },
+            { 
+                "cards": new Array(), 
+                "isPass": false,
+                "sumCards": 0
+            }
+        ]
     }
 }
 
@@ -55,7 +66,7 @@ class GameTable {
         for (let i=0; i< this.players.length; i++) {
             if (playerName == this.players[i].name) {
                 let indexHand = isSplit ? 1 : 0;
-                this.players[i].handCards[indexHand].push(this.deck.pop());
+                this.players[i].handCards[indexHand].cards.push(this.deck.pop());
             }
         }
     }
@@ -92,11 +103,13 @@ function runBlackjack(gameTable) {
     updateCardsOnTheTable(players);
 
     document.querySelector("#players").addEventListener('click', function (e) {
+
         if (e.target.className == 'button-hit') {
             let buttons = this.querySelectorAll(".player-cards-column-left .button-hit");
             for (let i=0; i<buttons.length; i++) {
-                if (e.target == buttons[i]) {
+                if (e.target == buttons[i] && !players[i+1].handCards[0].isPass) {
                     gameTable.getCardFromDeck(players[i+1].name)
+                    updateCardsSum(players);
                     updateCardsOnTheTable(players);
                 }
             }
@@ -104,14 +117,37 @@ function runBlackjack(gameTable) {
     });
 }
 
+function updateCardsSum(players) {
+    let cardsValueAceAs1, cardsValueAceAs10, cardsArr, cardValue, selectedCardValue;
+    let BLACK_JACK = 21;
+
+    for (let i=0; i<players.length; i++) {
+        for (let j=0; j<players[i].handCards.length; j++) {
+
+            cardsArr = players[i].handCards[j].cards;
+            cardsValueAceAs1 = cardsValueAceAs10 = 0;
+
+            for (let k=0; k<cardsArr.length; k++) {
+                cardValue = cardsArr[k].name == "Ace" ? 11 : cardsArr[k].value;
+                cardsValueAceAs10 += cardValue;
+                cardsValueAceAs1 += cardsArr[k].value;
+            }
+
+            selectedCardValue = cardsValueAceAs10 > BLACK_JACK ? cardsValueAceAs1 : cardsValueAceAs10;
+            players[i].handCards[j].sumCards = selectedCardValue;
+            players[i].handCards[j].isPass = selectedCardValue > BLACK_JACK ? true : false;
+        }
+    }
+}
+
 function updateCardsOnTheTable(players) {
     let cardsArr, partClassName, handleClassElement, cardsToShow;
-    for(let i=0; i<players.length; i++) {
+    for (let i=0; i<players.length; i++) {
         for (let j=0; j<players[i].handCards.length; j++) {
             
             partClassName = j == 0 ? "left" : "right";
             cardsToShow = "";
-            cardsArr = players[i].handCards[j];
+            cardsArr = players[i].handCards[j].cards;
             
             for (let k=0; k<cardsArr.length; k++) {
                 cardsToShow += '<img src="'+"IMG/cards/"+cardsArr[k].srcName+'" width="auto" height="120px">';
