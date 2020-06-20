@@ -10,6 +10,7 @@ class Card {
 class Player {
     constructor(name) {
         this.name = name;
+        this.isSplit = false;
         this.handCards = [ 
             { 
                 "cards": new Array(), 
@@ -147,7 +148,7 @@ function runBlackjack(gameTable) {
         if (e.target.className == 'button-split') {
             let buttons = this.querySelectorAll(".player-cards-column-left .button-split");
             for (let i=0; i<buttons.length; i++) {
-                if (e.target == buttons[i]) {
+                if (e.target == buttons[i] && !players[i+1].isSplit) {
                     players[i+1] = splitCardsPlayer(players[i+1]);
                     updateCardsOnTheTableForBlackjack(players);
                 }
@@ -157,8 +158,18 @@ function runBlackjack(gameTable) {
 }
 
 function splitCardsPlayer(player) {
-    let card = player.handCards[0].cards.pop();
-    player.handCards[1].cards.push(card);
+    let card2 = player.handCards[0].cards.pop();
+    let card1 = player.handCards[0].cards[0];
+    player.isSplit = true;
+
+    if (card2.name === card1.name) {
+        console.log("Splitted cards")
+        player.handCards[1].cards.push(card2);
+    } else {
+        console.log("I can't split cards")
+        player.handCards[0].cards.push(card2);
+    }
+
     return player;
 }
 
