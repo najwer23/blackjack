@@ -113,6 +113,15 @@ function runBlackjack(gameTable) {
                     updateCardsOnTheTableForBlackjack(players);
                 }
             }
+
+            buttons = this.querySelectorAll(".player-cards-column-right .button-hit");
+            for (let i=0; i<buttons.length; i++) {
+                if (e.target == buttons[i] && !players[i+1].handCards[1].isPass) {
+                    gameTable.getCardFromDeck(players[i+1].name, true)
+                    updateCardsSumForBlackjack(players);
+                    updateCardsOnTheTableForBlackjack(players);
+                }
+            }
         }
 
         if (e.target.className == 'button-stand') {
