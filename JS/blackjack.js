@@ -32,6 +32,8 @@ class GameTable {
     constructor(players) {
         this.deck = null;
         this.players = players;
+        this.blackjack = 21;
+        this.minSumCardsForCroupier = 16
     }
 
     fisherShuffleDeck() {
@@ -46,12 +48,32 @@ class GameTable {
         }
     }
 
+    load13JsonCards(suit) {
+        let cardsJson = [
+            { "suit": suit, "name": "Ace", "value": 1, "srcName": suit+"_Ace.png"},
+            { "suit": suit, "name": "2", "value": 2, "srcName": suit+"_2.png" },
+            { "suit": suit, "name": "3", "value": 3, "srcName": suit+"_3.png" },
+            { "suit": suit, "name": "4", "value": 4, "srcName": suit+"_4.png" },
+            { "suit": suit, "name": "5", "value": 5, "srcName": suit+"_5.png" },
+            { "suit": suit, "name": "6", "value": 6, "srcName": suit+"_6.png" },
+            { "suit": suit, "name": "7", "value": 7, "srcName": suit+"_7.png" },
+            { "suit": suit, "name": "8", "value": 8, "srcName": suit+"_8.png" },
+            { "suit": suit, "name": "9", "value": 9, "srcName": suit+"_9.png" },
+            { "suit": suit, "name": "10", "value": 10, "srcName": suit+"_10.png" },
+            { "suit": suit, "name": "Jack", "value": 10, "srcName": suit+"_Jack.png" },
+            { "suit": suit, "name": "Queen", "value": 10, "srcName": suit+"_Queen.png" },
+            { "suit": suit, "name": "King", "value": 10, "srcName": suit+"_King.png" }       
+        ]
+    
+        return cardsJson;
+    }
+
     getFullDeck(howManyDecks) {
         let deckArrJson = [].concat(
-            load13JsonCards("Clubs"),
-            load13JsonCards("Diamonds"),
-            load13JsonCards("Hearts"),
-            load13JsonCards("Spades"),
+            this.load13JsonCards("Clubs"),
+            this.load13JsonCards("Diamonds"),
+            this.load13JsonCards("Hearts"),
+            this.load13JsonCards("Spades"),
         )
 
         let decks = new Array();
@@ -99,9 +121,137 @@ class GameTable {
         this.createStartHand();
     }
 
+    setDefeatedPlayers() {
+        let players = this.players;
+        let croupierSumCards = players[0].handCards[0].sumCards;
+        let playerSumCards;
+    
+        for (let i=1; i<players.length; i++) {
+            for (let j=0; j<players[i].handCards.length; j++) {
+                playerSumCards = players[i].handCards[j].sumCards;
+    
+                if (players[i].isSplit || j==0) {
+                    if ((croupierSumCards < playerSumCards && playerSumCards <= this.blackjack) || (croupierSumCards > this.blackjack)) {
+                        players[i].handCards[j].isWin = true; 
+                        console.log(j + "gracz wygral");
+                    } else if ((croupierSumCards <= this.blackjack && playerSumCards < croupierSumCards) || (playerSumCards > this.blackjack)) {
+                        console.log(j + "croupier wygral");
+                    } else if (croupierSumCards == playerSumCards) {
+                        console.log(j + "remis");
+                    }
+                }
+            }
+        }
+    }
+
+    croupierMove() {
+        let players = this.players;
+        let isEveryPlayerPassedArr = new Array();
+        let isEveryPlayerLessThanBlackjackArr = new Array();
+    
+        for (let i=1; i<players.length; i++) {
+            isEveryPlayerPassedArr.push(players[i].handCards[0].isPass);
+            isEveryPlayerLessThanBlackjackArr.push(players[i].handCards[0].sumCards <= this.blackjack);
+            
+            if (players[i].isSplit) {
+                isEveryPlayerPassedArr.push(players[i].handCards[1].isPass);
+                isEveryPlayerLessThanBlackjackArr.push(players[i].handCards[1].sumCards <= this.blackjack);
+            }   
+        }
+    
+        let isEveryPlayerPass = isEveryPlayerPassedArr.every(isTrue);
+        let isOkToGetCardForCroupier = isEveryPlayerLessThanBlackjackArr.every(isTrue);
+    
+        if (isEveryPlayerPass && isOkToGetCardForCroupier) {
+            let croupierName = players[0].name;
+            let croupierSumCards = players[0].handCards[0].sumCards;
+    
+            while (croupierSumCards <= this.minSumCardsForCroupier) {
+                this.getCardFromDeck(croupierName);
+                this.updateCardsSumForBlackjack();
+                croupierSumCards = players[0].handCards[0].sumCards;
+            }
+        }
+    
+        if (isEveryPlayerPass) {
+            this.setDefeatedPlayers();
+            this.updateCardsOnTheTableForBlackjack();
+        } 
+    }
+
+    splitCardsPlayer(player) {
+        let card2 = player.handCards[0].cards.pop();
+        let card1 = player.handCards[0].cards[0];
+        player.isSplit = true;
+    
+        if (card2.name === card1.name) {
+            console.log("Splitted cards");
+            player.handCards[1].cards.push(card2);
+        } else {
+            console.log("I can't split cards");
+            player.handCards[0].cards.push(card2);
+        }
+    
+        return player;
+    }
+
+    updateCardsSumForBlackjack() {
+        let cardsValueAceAs1, cardsValueAceAs10, cardsArr, cardValue, selectedCardValue;
+        let maxAceValue = 11;
+        let players = this.players;
+    
+        for (let i=0; i<players.length; i++) {
+            for (let j=0; j<players[i].handCards.length; j++) {
+    
+                cardsArr = players[i].handCards[j].cards;
+                cardsValueAceAs1 = cardsValueAceAs10 = 0;
+    
+                for (let k=0; k<cardsArr.length; k++) {
+                    cardValue = cardsArr[k].name == "Ace" ? maxAceValue : cardsArr[k].value;
+                    cardsValueAceAs10 += cardValue;
+                    cardsValueAceAs1 += cardsArr[k].value;
+                }
+    
+                selectedCardValue = cardsValueAceAs10 > this.blackjack ? cardsValueAceAs1 : cardsValueAceAs10;
+                players[i].handCards[j].sumCards = selectedCardValue;
+                players[i].handCards[j].isPass = selectedCardValue > this.blackjack ? true : players[i].handCards[j].isPass;
+            }
+        }
+    }
+
+    updateCardsOnTheTableForBlackjack() {
+        let cardsArr, partClassName, handleClassElement, cardsToShow;
+        let players = this.players;
+
+        for (let i=0; i<players.length; i++) {
+            for (let j=0; j<players[i].handCards.length; j++) {
+                
+                partClassName = j == 0 ? "left" : "right";
+                cardsToShow = "";
+                cardsArr = players[i].handCards[j].cards;
+                
+                for (let k=0; k<cardsArr.length; k++) {
+                    cardsToShow += '<img src="'+"IMG/cards/"+cardsArr[k].srcName+'" width="auto" height="120px">';
+                }
+    
+                if (players[i].name == "Croupier") {
+                    handleClassElement = document.querySelector(".dealer-cards-column-"+partClassName+"-view");
+                } 
+    
+                if (players[i].name != "Croupier") {
+                    handleClassElement = document.querySelectorAll(".player-cards-column-"+partClassName+"-view")[i-1];
+                } 
+    
+                if (handleClassElement != null) {
+                    handleClassElement.innerHTML = cardsToShow;
+                }
+            } 
+        }
+    }
 }
 
 window.onload = function () {
+    
     let players = [
         new Player("Croupier"),
         new Player("Player"),
@@ -115,7 +265,7 @@ window.onload = function () {
 function runBlackjack(gameTable) {
     gameTable.createBlackjack();
     let players = gameTable.players;
-    updateCardsOnTheTableForBlackjack(players);
+    gameTable.updateCardsOnTheTableForBlackjack();
 
     document.querySelector("#players").addEventListener('click', function (e) {
 
@@ -124,9 +274,9 @@ function runBlackjack(gameTable) {
             for (let i=0; i<buttons.length; i++) {
                 if (e.target == buttons[i] && !players[i+1].handCards[0].isPass) {
                     gameTable.getCardFromDeck(players[i+1].name);
-                    updateCardsSumForBlackjack(players);
-                    updateCardsOnTheTableForBlackjack(players);
-                    croupierMove(gameTable, players);
+                    gameTable.updateCardsSumForBlackjack();
+                    gameTable.updateCardsOnTheTableForBlackjack();
+                    gameTable.croupierMove();
                 }
             }
 
@@ -134,9 +284,9 @@ function runBlackjack(gameTable) {
             for (let i=0; i<buttons.length; i++) {
                 if (e.target == buttons[i] && !players[i+1].handCards[1].isPass) {
                     gameTable.getCardFromDeck(players[i+1].name, true);
-                    updateCardsSumForBlackjack(players);
-                    updateCardsOnTheTableForBlackjack(players);
-                    croupierMove(gameTable, players);
+                    gameTable.updateCardsSumForBlackjack();
+                    gameTable.updateCardsOnTheTableForBlackjack();
+                    gameTable.croupierMove();
                 }
             }
         }
@@ -146,9 +296,9 @@ function runBlackjack(gameTable) {
             for (let i=0; i<buttons.length; i++) {
                 if (e.target == buttons[i] && !players[i+1].handCards[0].isPass) {
                     players[i+1].handCards[0].isPass = true;
-                    updateCardsSumForBlackjack(players);
-                    updateCardsOnTheTableForBlackjack(players);
-                    croupierMove(gameTable, players);
+                    gameTable.updateCardsSumForBlackjack();
+                    gameTable.updateCardsOnTheTableForBlackjack();
+                    gameTable.croupierMove();
                 }
             }
 
@@ -156,9 +306,9 @@ function runBlackjack(gameTable) {
             for (let i=0; i<buttons.length; i++) {
                 if (e.target == buttons[i] && !players[i+1].handCards[1].isPass) {
                     players[i+1].handCards[1].isPass = true;
-                    updateCardsSumForBlackjack(players);
-                    updateCardsOnTheTableForBlackjack(players);
-                    croupierMove(gameTable, players);
+                    gameTable.updateCardsSumForBlackjack();
+                    gameTable.updateCardsOnTheTableForBlackjack();
+                    gameTable.croupierMove();
                 }
             }
         }
@@ -167,8 +317,8 @@ function runBlackjack(gameTable) {
             let buttons = this.querySelectorAll(".player-cards-column-left .button-split");
             for (let i=0; i<buttons.length; i++) {
                 if (e.target == buttons[i] && !players[i+1].isSplit && !players[i+1].handCards[0].isPass) {
-                    players[i+1] = splitCardsPlayer(players[i+1]);
-                    updateCardsOnTheTableForBlackjack(players);
+                    players[i+1] = gameTable.splitCardsPlayer(players[i+1]);
+                    gameTable.updateCardsOnTheTableForBlackjack();
                 }
             }
         }
@@ -177,151 +327,5 @@ function runBlackjack(gameTable) {
 
 function isTrue(value) {
     return value === true;
-}
-
-function croupierMove(gameTable, players) {
-    let isEveryPlayerPassedArr = new Array();
-    let isEveryPlayerLessThanBlackjackArr = new Array();
-    let BLACK_JACK = 21;
-
-    for (let i=1; i<players.length; i++) {
-        isEveryPlayerPassedArr.push(players[i].handCards[0].isPass);
-        isEveryPlayerLessThanBlackjackArr.push(players[i].handCards[0].sumCards <= BLACK_JACK);
-        
-        if (players[i].isSplit) {
-            isEveryPlayerPassedArr.push(players[i].handCards[1].isPass);
-            isEveryPlayerLessThanBlackjackArr.push(players[i].handCards[1].sumCards <= BLACK_JACK);
-        }   
-    }
-
-    let isEveryPlayerPass = isEveryPlayerPassedArr.every(isTrue);
-    let isOkToGetCardForCroupier = isEveryPlayerLessThanBlackjackArr.every(isTrue);
-
-    if (isEveryPlayerPass && isOkToGetCardForCroupier) {
-        let croupierName = players[0].name;
-        let croupierSumCards = players[0].handCards[0].sumCards;
-
-        while (croupierSumCards <= 16) {
-            gameTable.getCardFromDeck(croupierName);
-            updateCardsSumForBlackjack(players);
-            croupierSumCards = players[0].handCards[0].sumCards;
-        }
-    }
-
-    if (isEveryPlayerPass) {
-        checkWinner(players);
-        updateCardsOnTheTableForBlackjack(players);
-    }
-    
-}
-
-function checkWinner(players) {
-    let croupierSumCards = players[0].handCards[0].sumCards;
-    let playerSumCards;
-    let BLACK_JACK = 21;
-
-    for (let i=1; i<players.length; i++) {
-        for (let j=0; j<players[i].handCards.length; j++) {
-            playerSumCards = players[i].handCards[j].sumCards;
-
-            if (players[i].isSplit || j==0) {
-                if ((croupierSumCards < playerSumCards && playerSumCards <= BLACK_JACK) || (croupierSumCards > BLACK_JACK)) {
-                    players[i].handCards[j].isWin = true; 
-                    console.log(j + "gracz wygral");
-                } else if ((croupierSumCards <= BLACK_JACK && playerSumCards < croupierSumCards) || (playerSumCards > BLACK_JACK)) {
-                    console.log(j + "croupier wygral");
-                } else if (croupierSumCards == playerSumCards) {
-                    console.log(j + "remis");
-                }
-            }
-        }
-    }
-}
-
-function splitCardsPlayer(player) {
-    let card2 = player.handCards[0].cards.pop();
-    let card1 = player.handCards[0].cards[0];
-    player.isSplit = true;
-
-    if (card2.name === card1.name) {
-        console.log("Splitted cards");
-        player.handCards[1].cards.push(card2);
-    } else {
-        console.log("I can't split cards");
-        player.handCards[0].cards.push(card2);
-    }
-
-    return player;
-}
-
-function updateCardsSumForBlackjack(players) {
-    let cardsValueAceAs1, cardsValueAceAs10, cardsArr, cardValue, selectedCardValue;
-    let BLACK_JACK = 21;
-
-    for (let i=0; i<players.length; i++) {
-        for (let j=0; j<players[i].handCards.length; j++) {
-
-            cardsArr = players[i].handCards[j].cards;
-            cardsValueAceAs1 = cardsValueAceAs10 = 0;
-
-            for (let k=0; k<cardsArr.length; k++) {
-                cardValue = cardsArr[k].name == "Ace" ? 11 : cardsArr[k].value;
-                cardsValueAceAs10 += cardValue;
-                cardsValueAceAs1 += cardsArr[k].value;
-            }
-
-            selectedCardValue = cardsValueAceAs10 > BLACK_JACK ? cardsValueAceAs1 : cardsValueAceAs10;
-            players[i].handCards[j].sumCards = selectedCardValue;
-            players[i].handCards[j].isPass = selectedCardValue > BLACK_JACK ? true : players[i].handCards[j].isPass;
-        }
-    }
-}
-
-function updateCardsOnTheTableForBlackjack(players) {
-    let cardsArr, partClassName, handleClassElement, cardsToShow;
-    for (let i=0; i<players.length; i++) {
-        for (let j=0; j<players[i].handCards.length; j++) {
-            
-            partClassName = j == 0 ? "left" : "right";
-            cardsToShow = "";
-            cardsArr = players[i].handCards[j].cards;
-            
-            for (let k=0; k<cardsArr.length; k++) {
-                cardsToShow += '<img src="'+"IMG/cards/"+cardsArr[k].srcName+'" width="auto" height="120px">';
-            }
-
-            if (players[i].name == "Croupier") {
-                handleClassElement = document.querySelector(".dealer-cards-column-"+partClassName+"-view");
-            } 
-
-            if (players[i].name != "Croupier") {
-                handleClassElement = document.querySelectorAll(".player-cards-column-"+partClassName+"-view")[i-1];
-            } 
-
-            if (handleClassElement != null) {
-                handleClassElement.innerHTML = cardsToShow;
-            }
-        } 
-    }
-}
-
-function load13JsonCards(suit) {
-    let cardsJson = [
-        { "suit": suit, "name": "Ace", "value": 1, "srcName": suit+"_Ace.png"},
-        { "suit": suit, "name": "2", "value": 2, "srcName": suit+"_2.png" },
-        { "suit": suit, "name": "3", "value": 3, "srcName": suit+"_3.png" },
-        { "suit": suit, "name": "4", "value": 4, "srcName": suit+"_4.png" },
-        { "suit": suit, "name": "5", "value": 5, "srcName": suit+"_5.png" },
-        { "suit": suit, "name": "6", "value": 6, "srcName": suit+"_6.png" },
-        { "suit": suit, "name": "7", "value": 7, "srcName": suit+"_7.png" },
-        { "suit": suit, "name": "8", "value": 8, "srcName": suit+"_8.png" },
-        { "suit": suit, "name": "9", "value": 9, "srcName": suit+"_9.png" },
-        { "suit": suit, "name": "10", "value": 10, "srcName": suit+"_10.png" },
-        { "suit": suit, "name": "Jack", "value": 10, "srcName": suit+"_Jack.png" },
-        { "suit": suit, "name": "Queen", "value": 10, "srcName": suit+"_Queen.png" },
-        { "suit": suit, "name": "King", "value": 10, "srcName": suit+"_King.png" }       
-    ]
-
-    return cardsJson;
 }
 
