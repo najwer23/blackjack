@@ -220,7 +220,7 @@ class GameTable {
     }
 
     updateCardsOnTheTableForBlackjack() {
-        let cardsArr, partClassName, handleClassElement, cardsToShow;
+        let cardsArr, partClassName, handleColumnElement, cardsToShow, handleCardsValue;
         let players = this.players;
 
         for (let i=0; i<players.length; i++) {
@@ -231,19 +231,22 @@ class GameTable {
                 cardsArr = players[i].handCards[j].cards;
                 
                 for (let k=0; k<cardsArr.length; k++) {
-                    cardsToShow += '<img src="'+"IMG/cards/"+cardsArr[k].srcName+'" width="auto" height="120px">';
+                    cardsToShow += '<img class="card" src="'+"IMG/cards/"+cardsArr[k].srcName+'">';
                 }
     
                 if (players[i].name == "Croupier") {
-                    handleClassElement = document.querySelector(".dealer-cards-column-"+partClassName+"-view");
+                    handleColumnElement = document.querySelector(".dealer-cards-column-"+partClassName+"-view");
+                    handleCardsValue = document.querySelector(".dealer-cards-column-"+partClassName+" .card-value");
                 } 
     
                 if (players[i].name != "Croupier") {
-                    handleClassElement = document.querySelectorAll(".player-cards-column-"+partClassName+"-view")[i-1];
+                    handleColumnElement = document.querySelectorAll(".player-cards-column-"+partClassName+"-view")[i-1];
+                    handleCardsValue = document.querySelectorAll(".player-cards-column-"+partClassName+" .card-value")[i-1];
                 } 
     
-                if (handleClassElement != null) {
-                    handleClassElement.innerHTML = cardsToShow;
+                if (handleColumnElement != null && handleCardsValue != null) {
+                    handleColumnElement.innerHTML = cardsToShow;
+                    handleCardsValue.innerHTML = players[i].handCards[j].sumCards;
                 }
             } 
         }
@@ -265,11 +268,12 @@ window.onload = function () {
 function runBlackjack(gameTable) {
     gameTable.createBlackjack();
     let players = gameTable.players;
+    gameTable.updateCardsSumForBlackjack();
     gameTable.updateCardsOnTheTableForBlackjack();
 
     document.querySelector("#players").addEventListener('click', function (e) {
 
-        if (e.target.className == 'button-hit') {
+        if (e.target.className.indexOf('button-hit') != -1) {
             let buttons = this.querySelectorAll(".player-cards-column-left .button-hit");
             for (let i=0; i<buttons.length; i++) {
                 if (e.target == buttons[i] && !players[i+1].handCards[0].isPass) {
@@ -291,7 +295,7 @@ function runBlackjack(gameTable) {
             }
         }
 
-        if (e.target.className == 'button-stand') {
+        if (e.target.className.indexOf('button-stand') != -1) {
             let buttons = this.querySelectorAll(".player-cards-column-left .button-stand");
             for (let i=0; i<buttons.length; i++) {
                 if (e.target == buttons[i] && !players[i+1].handCards[0].isPass) {
@@ -313,7 +317,7 @@ function runBlackjack(gameTable) {
             }
         }
 
-        if (e.target.className == 'button-split') {
+        if (e.target.className.indexOf('button-split') != -1) {
             let buttons = this.querySelectorAll(".player-cards-column-left .button-split");
             for (let i=0; i<buttons.length; i++) {
                 if (e.target == buttons[i] && !players[i+1].isSplit && !players[i+1].handCards[0].isPass) {
