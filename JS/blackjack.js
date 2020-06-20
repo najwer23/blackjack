@@ -148,7 +148,7 @@ function runBlackjack(gameTable) {
         if (e.target.className == 'button-split') {
             let buttons = this.querySelectorAll(".player-cards-column-left .button-split");
             for (let i=0; i<buttons.length; i++) {
-                if (e.target == buttons[i] && !players[i+1].isSplit) {
+                if (e.target == buttons[i] && !players[i+1].isSplit && !players[i+1].handCards[0].isPass) {
                     players[i+1] = splitCardsPlayer(players[i+1]);
                     updateCardsOnTheTableForBlackjack(players);
                 }
