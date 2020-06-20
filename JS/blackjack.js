@@ -15,12 +15,14 @@ class Player {
             { 
                 "cards": new Array(), 
                 "isPass": false,
-                "sumCards": 0
+                "sumCards": 0,
+                "isWin": false
             },
             { 
                 "cards": new Array(), 
                 "isPass": false,
-                "sumCards": 0
+                "sumCards": 0,
+                "isWin": false
             }
         ]
     }
@@ -44,13 +46,25 @@ class GameTable {
         }
     }
 
-    loadNewDeck() {
+    getFullDeck(howManyDecks) {
         let deckArrJson = [].concat(
             load13JsonCards("Clubs"),
             load13JsonCards("Diamonds"),
             load13JsonCards("Hearts"),
             load13JsonCards("Spades"),
         )
+
+        let decks = new Array();
+
+        for (let i=0; i<howManyDecks; i++) {
+            decks.push(deckArrJson);
+        }
+
+        return [].concat.apply([], decks);
+    }
+
+    loadNewDeck() {
+        let deckArrJson = this.getFullDeck(1);
 
         let deckArrObj = new Array();
         let cardObj;
@@ -112,6 +126,7 @@ function runBlackjack(gameTable) {
                     gameTable.getCardFromDeck(players[i+1].name)
                     updateCardsSumForBlackjack(players);
                     updateCardsOnTheTableForBlackjack(players);
+                    croupierMove(gameTable, players);
                 }
             }
 
@@ -121,6 +136,7 @@ function runBlackjack(gameTable) {
                     gameTable.getCardFromDeck(players[i+1].name, true)
                     updateCardsSumForBlackjack(players);
                     updateCardsOnTheTableForBlackjack(players);
+                    croupierMove(gameTable, players);
                 }
             }
         }
@@ -128,19 +144,21 @@ function runBlackjack(gameTable) {
         if (e.target.className == 'button-stand') {
             let buttons = this.querySelectorAll(".player-cards-column-left .button-stand");
             for (let i=0; i<buttons.length; i++) {
-                if (e.target == buttons[i]) {
+                if (e.target == buttons[i] && !players[i+1].handCards[0].isPass) {
                     players[i+1].handCards[0].isPass = true;
                     updateCardsSumForBlackjack(players);
                     updateCardsOnTheTableForBlackjack(players);
+                    croupierMove(gameTable, players);
                 }
             }
 
             buttons = this.querySelectorAll(".player-cards-column-right .button-stand");
             for (let i=0; i<buttons.length; i++) {
-                if (e.target == buttons[i]) {
+                if (e.target == buttons[i] && !players[i+1].handCards[1].isPass) {
                     players[i+1].handCards[1].isPass = true;
                     updateCardsSumForBlackjack(players);
                     updateCardsOnTheTableForBlackjack(players);
+                    croupierMove(gameTable, players);
                 }
             }
         }
@@ -155,6 +173,69 @@ function runBlackjack(gameTable) {
             }
         }
     });
+}
+
+function isTrue(value) {
+    return value === true;
+}
+
+function croupierMove(gameTable, players) {
+    let isEveryPlayerPassedArr = new Array();
+    let isEveryPlayerLessThanBlackjackArr = new Array();
+    let BLACK_JACK = 21;
+
+    for (let i=1; i<players.length; i++) {
+        isEveryPlayerPassedArr.push(players[i].handCards[0].isPass)
+        isEveryPlayerLessThanBlackjackArr.push(players[i].handCards[0].sumCards <= BLACK_JACK)
+        
+        if (players[i].isSplit) {
+            isEveryPlayerPassedArr.push(players[i].handCards[1].isPass)
+            isEveryPlayerLessThanBlackjackArr.push(players[i].handCards[1].sumCards <= BLACK_JACK)
+        }   
+    }
+
+    let isEveryPlayerPass = isEveryPlayerPassedArr.every(isTrue);
+    let isOkToGetCardForCroupier = isEveryPlayerLessThanBlackjackArr.every(isTrue);
+
+    if (isEveryPlayerPass && isOkToGetCardForCroupier) {
+        let croupierName = players[0].name;
+        let croupierSumCards = players[0].handCards[0].sumCards;
+
+        while (croupierSumCards <= 16) {
+            gameTable.getCardFromDeck(croupierName)
+            updateCardsSumForBlackjack(players)
+            croupierSumCards = players[0].handCards[0].sumCards;
+        }
+    }
+
+    if (isEveryPlayerPass) {
+        checkWinner(players);
+        updateCardsOnTheTableForBlackjack(players);
+    }
+    
+}
+
+function checkWinner(players) {
+    let croupierSumCards = players[0].handCards[0].sumCards;
+    let playerSumCards;
+    let BLACK_JACK = 21;
+
+    for (let i=1; i<players.length; i++) {
+        for (let j=0; j<players[i].handCards.length; j++) {
+            playerSumCards = players[i].handCards[j].sumCards;
+
+            if (players[i].isSplit || j==0) {
+                if ((croupierSumCards < playerSumCards && playerSumCards <= BLACK_JACK) || (croupierSumCards > BLACK_JACK)) {
+                    players[i].handCards[j].isWin = true; 
+                    console.log(j + "gracz wygral")
+                } else if ((croupierSumCards <= BLACK_JACK && playerSumCards < croupierSumCards) || (playerSumCards > BLACK_JACK)) {
+                    console.log(j + "croupier wygral")
+                } else if (croupierSumCards == playerSumCards) {
+                    console.log(j + "remis")
+                }
+            }
+        }
+    }
 }
 
 function splitCardsPlayer(player) {
