@@ -70,8 +70,8 @@ class GameTable {
         let cardObj;
 
         for (let i=0; i<deckArrJson.length; i++) {
-            cardObj = new Card(deckArrJson[i])
-            deckArrObj.push(cardObj)
+            cardObj = new Card(deckArrJson[i]);
+            deckArrObj.push(cardObj);
         }
 
         this.deck = deckArrObj;
@@ -88,8 +88,8 @@ class GameTable {
 
     createStartHand() {
         for (let i=0; i< this.players.length; i++) {
-            this.getCardFromDeck(this.players[i].name)
-            this.getCardFromDeck(this.players[i].name)
+            this.getCardFromDeck(this.players[i].name);
+            this.getCardFromDeck(this.players[i].name);
         }
     }
 
@@ -104,7 +104,7 @@ class GameTable {
 window.onload = function () {
     let players = [
         new Player("Croupier"),
-        new Player("Player")
+        new Player("Player"),
     ];
 
     let gameTable = new GameTable(players);
@@ -123,7 +123,7 @@ function runBlackjack(gameTable) {
             let buttons = this.querySelectorAll(".player-cards-column-left .button-hit");
             for (let i=0; i<buttons.length; i++) {
                 if (e.target == buttons[i] && !players[i+1].handCards[0].isPass) {
-                    gameTable.getCardFromDeck(players[i+1].name)
+                    gameTable.getCardFromDeck(players[i+1].name);
                     updateCardsSumForBlackjack(players);
                     updateCardsOnTheTableForBlackjack(players);
                     croupierMove(gameTable, players);
@@ -133,7 +133,7 @@ function runBlackjack(gameTable) {
             buttons = this.querySelectorAll(".player-cards-column-right .button-hit");
             for (let i=0; i<buttons.length; i++) {
                 if (e.target == buttons[i] && !players[i+1].handCards[1].isPass) {
-                    gameTable.getCardFromDeck(players[i+1].name, true)
+                    gameTable.getCardFromDeck(players[i+1].name, true);
                     updateCardsSumForBlackjack(players);
                     updateCardsOnTheTableForBlackjack(players);
                     croupierMove(gameTable, players);
@@ -185,12 +185,12 @@ function croupierMove(gameTable, players) {
     let BLACK_JACK = 21;
 
     for (let i=1; i<players.length; i++) {
-        isEveryPlayerPassedArr.push(players[i].handCards[0].isPass)
-        isEveryPlayerLessThanBlackjackArr.push(players[i].handCards[0].sumCards <= BLACK_JACK)
+        isEveryPlayerPassedArr.push(players[i].handCards[0].isPass);
+        isEveryPlayerLessThanBlackjackArr.push(players[i].handCards[0].sumCards <= BLACK_JACK);
         
         if (players[i].isSplit) {
-            isEveryPlayerPassedArr.push(players[i].handCards[1].isPass)
-            isEveryPlayerLessThanBlackjackArr.push(players[i].handCards[1].sumCards <= BLACK_JACK)
+            isEveryPlayerPassedArr.push(players[i].handCards[1].isPass);
+            isEveryPlayerLessThanBlackjackArr.push(players[i].handCards[1].sumCards <= BLACK_JACK);
         }   
     }
 
@@ -202,8 +202,8 @@ function croupierMove(gameTable, players) {
         let croupierSumCards = players[0].handCards[0].sumCards;
 
         while (croupierSumCards <= 16) {
-            gameTable.getCardFromDeck(croupierName)
-            updateCardsSumForBlackjack(players)
+            gameTable.getCardFromDeck(croupierName);
+            updateCardsSumForBlackjack(players);
             croupierSumCards = players[0].handCards[0].sumCards;
         }
     }
@@ -227,11 +227,11 @@ function checkWinner(players) {
             if (players[i].isSplit || j==0) {
                 if ((croupierSumCards < playerSumCards && playerSumCards <= BLACK_JACK) || (croupierSumCards > BLACK_JACK)) {
                     players[i].handCards[j].isWin = true; 
-                    console.log(j + "gracz wygral")
+                    console.log(j + "gracz wygral");
                 } else if ((croupierSumCards <= BLACK_JACK && playerSumCards < croupierSumCards) || (playerSumCards > BLACK_JACK)) {
-                    console.log(j + "croupier wygral")
+                    console.log(j + "croupier wygral");
                 } else if (croupierSumCards == playerSumCards) {
-                    console.log(j + "remis")
+                    console.log(j + "remis");
                 }
             }
         }
@@ -244,10 +244,10 @@ function splitCardsPlayer(player) {
     player.isSplit = true;
 
     if (card2.name === card1.name) {
-        console.log("Splitted cards")
+        console.log("Splitted cards");
         player.handCards[1].cards.push(card2);
     } else {
-        console.log("I can't split cards")
+        console.log("I can't split cards");
         player.handCards[0].cards.push(card2);
     }
 
