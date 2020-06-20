@@ -121,10 +121,27 @@ function runBlackjack(gameTable) {
                 if (e.target == buttons[i]) {
                     players[i+1].handCards[0].isPass = true;
                     updateCardsSumForBlackjack(players);
+                    updateCardsOnTheTableForBlackjack(players);
+                }
+            }
+        }
+
+        if (e.target.className == 'button-split') {
+            let buttons = this.querySelectorAll(".player-cards-column-left .button-split");
+            for (let i=0; i<buttons.length; i++) {
+                if (e.target == buttons[i]) {
+                    players[i+1] = splitCardsPlayer(players[i+1]);
+                    updateCardsOnTheTableForBlackjack(players);
                 }
             }
         }
     });
+}
+
+function splitCardsPlayer(player) {
+    let card = player.handCards[0].cards.pop();
+    player.handCards[1].cards.push(card);
+    return player;
 }
 
 function updateCardsSumForBlackjack(players) {
