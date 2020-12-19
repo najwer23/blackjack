@@ -52,16 +52,16 @@ class GameTable {
 
     load13JsonCards(suit) {
         let cardsJson = [
-            // { "suit": suit, "name": "Ace", "value": 1, "srcName": suit+"_Ace.png"},
-            // { "suit": suit, "name": "2", "value": 2, "srcName": suit+"_2.png" },
-            // { "suit": suit, "name": "3", "value": 3, "srcName": suit+"_3.png" },
-            // { "suit": suit, "name": "4", "value": 4, "srcName": suit+"_4.png" },
-            // { "suit": suit, "name": "5", "value": 5, "srcName": suit+"_5.png" },
-            // { "suit": suit, "name": "6", "value": 6, "srcName": suit+"_6.png" },
-            // { "suit": suit, "name": "7", "value": 7, "srcName": suit+"_7.png" },
-            // { "suit": suit, "name": "8", "value": 8, "srcName": suit+"_8.png" },
-            // { "suit": suit, "name": "9", "value": 9, "srcName": suit+"_9.png" },
-            // { "suit": suit, "name": "10", "value": 10, "srcName": suit+"_10.png" },
+            { "suit": suit, "name": "Ace", "value": 1, "srcName": suit+"_Ace.png"},
+            { "suit": suit, "name": "2", "value": 2, "srcName": suit+"_2.png" },
+            { "suit": suit, "name": "3", "value": 3, "srcName": suit+"_3.png" },
+            { "suit": suit, "name": "4", "value": 4, "srcName": suit+"_4.png" },
+            { "suit": suit, "name": "5", "value": 5, "srcName": suit+"_5.png" },
+            { "suit": suit, "name": "6", "value": 6, "srcName": suit+"_6.png" },
+            { "suit": suit, "name": "7", "value": 7, "srcName": suit+"_7.png" },
+            { "suit": suit, "name": "8", "value": 8, "srcName": suit+"_8.png" },
+            { "suit": suit, "name": "9", "value": 9, "srcName": suit+"_9.png" },
+            { "suit": suit, "name": "10", "value": 10, "srcName": suit+"_10.png" },
             { "suit": suit, "name": "Jack", "value": 10, "srcName": suit+"_Jack.png" },
             { "suit": suit, "name": "Queen", "value": 10, "srcName": suit+"_Queen.png" },
             { "suit": suit, "name": "King", "value": 10, "srcName": suit+"_King.png" }       
@@ -112,6 +112,12 @@ class GameTable {
 
     createStartHand() {
         for (let i=0; i< this.players.length; i++) {
+            this.players[i].handCards[0].cards = [];
+            this.players[i].handCards[1].cards = [];
+        }
+        
+
+        for (let i=0; i< this.players.length; i++) {
             this.getCardFromDeck(this.players[i].name);
             this.getCardFromDeck(this.players[i].name);
         }
@@ -123,24 +129,38 @@ class GameTable {
         this.createStartHand();
     }
 
-    setDefeatedPlayers() {
+    setGameResult() {
         let players = this.players;
         let croupierSumCards = players[0].handCards[0].sumCards;
         let playerSumCards;
+        let partClassName;
+        let resultText;
+
     
         for (let i=1; i<players.length; i++) {
             for (let j=0; j<players[i].handCards.length; j++) {
                 playerSumCards = players[i].handCards[j].sumCards;
-    
+                partClassName = j == 0 ? "left" : "right";
                 if (players[i].isSplit || j==0) {
                     if ((croupierSumCards < playerSumCards && playerSumCards <= this.blackjack) || (croupierSumCards > this.blackjack)) {
                         players[i].handCards[j].isWin = true; 
+                        players[i].money += 2*players[i].moneyOnTable;
+                        players[i].moneyOnTable = 0;
+                        resultText = "WIN"
                         console.log(j + "gracz wygral");
                     } else if ((croupierSumCards <= this.blackjack && playerSumCards < croupierSumCards) || (playerSumCards > this.blackjack)) {
+                        players[i].money -= players[i].moneyOnTable;
+                        players[i].moneyOnTable = 0;
+                        resultText = "DEFATED"
                         console.log(j + "croupier wygral");
                     } else if (croupierSumCards == playerSumCards) {
+                        players[i].money += players[i].moneyOnTable;
+                        players[i].moneyOnTable = 0;
+                        resultText = "REMIS"
                         console.log(j + "remis");
                     }
+
+                    document.querySelectorAll(".player-cards-column-"+partClassName + " .game-result")[0].innerHTML = resultText;
                 }
             }
         }
@@ -176,7 +196,7 @@ class GameTable {
         }
     
         if (isEveryPlayerPass) {
-            this.setDefeatedPlayers();
+            this.setGameResult();
             this.updateCardsOnTheTableForBlackjack();
         } 
     }
@@ -264,11 +284,13 @@ class GameTable {
                 }
             } 
         }
+
+        this.updateMoneyPlayer1()
     }
 }
 
+
 window.onload = function () {
-    
     let players = [
         new Player("Croupier"),
         new Player("Player", 1000),
@@ -277,6 +299,19 @@ window.onload = function () {
     let gameTable = new GameTable(players);
 
     runBlackjack(gameTable);
+
+    document.querySelector("#players").addEventListener('click', function (e) {
+        if (e.target.className.indexOf('button-new-game') != -1) {
+            
+            players = [
+                new Player("Croupier"),
+                new Player("Player", players[1].money),
+            ];
+        
+            gameTable = new GameTable(players);
+            runBlackjack(gameTable);
+        }
+    });
 }
 
 function runBlackjack(gameTable) {
@@ -287,7 +322,6 @@ function runBlackjack(gameTable) {
     let m;
 
     document.querySelector("#players").addEventListener('click', function (e) {
-
         if (e.target.className.indexOf('button-hit') != -1) {
             let buttons = this.querySelectorAll(".player-cards-column-left .button-hit");
             for (let i=0; i<buttons.length; i++) {
