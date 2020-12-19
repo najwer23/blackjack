@@ -147,17 +147,14 @@ class GameTable {
                         players[i].handCards[j].isWin = true; 
                         players[i].money += 2*players[i].moneyOnTable;
                         players[i].moneyOnTable = 0;
-                        resultText = "WIN"
-                        console.log(j + "gracz wygral");
+                        resultText = "WINNER"
                     } else if ((croupierSumCards <= this.blackjack && playerSumCards < croupierSumCards) || (playerSumCards > this.blackjack)) {
                         players[i].moneyOnTable = 0;
-                        resultText = "DEFATED"
-                        console.log(j + "croupier wygral");
+                        resultText = "DEFEATED"
                     } else if (croupierSumCards == playerSumCards) {
                         players[i].money += players[i].moneyOnTable;
                         players[i].moneyOnTable = 0;
-                        resultText = "REMIS"
-                        console.log(j + "remis");
+                        resultText = "DRAW"
                     }
 
                     document.querySelectorAll(".player-cards-column-"+partClassName + " .game-result")[0].innerHTML = resultText;
