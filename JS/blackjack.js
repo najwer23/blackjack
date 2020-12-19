@@ -50,7 +50,7 @@ class GameTable {
         }
     }
 
-    load13JsonCards(suit) {
+    loadObjCards(suit) {
         let cardsJson = [
             { "suit": suit, "name": "Ace", "value": 1, "srcName": suit+"_Ace.png"},
             { "suit": suit, "name": "2", "value": 2, "srcName": suit+"_2.png" },
@@ -72,10 +72,10 @@ class GameTable {
 
     getFullDeck(howManyDecks) {
         let deckArrJson = [].concat(
-            this.load13JsonCards("Clubs"),
-            this.load13JsonCards("Diamonds"),
-            this.load13JsonCards("Hearts"),
-            this.load13JsonCards("Spades"),
+            this.loadObjCards("Clubs"),
+            this.loadObjCards("Diamonds"),
+            this.loadObjCards("Hearts"),
+            this.loadObjCards("Spades"),
         )
 
         let decks = new Array();
@@ -297,8 +297,8 @@ window.onload = function () {
     ];
 
     let gameTable = new GameTable(players);
-
     runBlackjack(gameTable);
+
 
     document.querySelector("#players").addEventListener('click', function (e) {
         if (e.target.className.indexOf('button-new-game') != -1) {
@@ -321,7 +321,6 @@ function runBlackjack(gameTable) {
     let players = gameTable.players;
     gameTable.updateCardsSumForBlackjack();
     gameTable.updateCardsOnTheTableForBlackjack();
-    let m;
 
     document.querySelector("#players").addEventListener('click', function (e) {
         if (e.target.className.indexOf('button-hit') != -1) {
@@ -381,52 +380,24 @@ function runBlackjack(gameTable) {
 
 
         // money
-        if (e.target.className.indexOf('button-10') != -1) {
-            let buttons = this.querySelectorAll(".money .button-10");
-            m = 10;
-            for (let i=0; i<buttons.length; i++) {
-                if (e.target == buttons[i] && !players[i+1].handCards[0].isPass) {
-                    players[i+1].moneyOnTable += players[i+1].money >= m ? m : 0;
-                    players[i+1].money -= players[i+1].money >= m ? m : 0;  
-                    gameTable.updateMoneyPlayer1();
+        let money = [10,50,100,"all"];
+        money.map(m => {
+            if (e.target.className.indexOf('button-'+m) != -1) {
+                let buttons = this.querySelectorAll(".money .button-"+m);
+                for (let i=0; i<buttons.length; i++) {
+                    if (e.target == buttons[i] && !players[i+1].handCards[0].isPass) {
+                        if (m=="all"){
+                            players[i+1].moneyOnTable += players[i+1].money
+                            players[i+1].money -= players[i+1].money
+                        } else {
+                            players[i+1].moneyOnTable += players[i+1].money >= m ? m : 0;
+                            players[i+1].money -= players[i+1].money >= m ? m : 0;  
+                        }
+                        gameTable.updateMoneyPlayer1();
+                    }
                 }
             }
-        }
-
-        if (e.target.className.indexOf('button-50') != -1) {
-            let buttons = this.querySelectorAll(".money .button-50");
-            m = 50
-            for (let i=0; i<buttons.length; i++) {
-                if (e.target == buttons[i] && !players[i+1].handCards[0].isPass) {  
-                    players[i+1].moneyOnTable += players[i+1].money >= m ? m : 0;
-                    players[i+1].money -= players[i+1].money >= m ? m : 0;  
-                    gameTable.updateMoneyPlayer1(); 
-                }
-            }
-        }
-
-        if (e.target.className.indexOf('button-100') != -1) {
-            let buttons = this.querySelectorAll(".money .button-100");
-            m = 100;
-            for (let i=0; i<buttons.length; i++) {
-                if (e.target == buttons[i] && !players[i+1].handCards[0].isPass) {  
-                    players[i+1].moneyOnTable += players[i+1].money >= m ? m : 0;
-                    players[i+1].money -= players[i+1].money >= m ? m : 0;  
-                    gameTable.updateMoneyPlayer1();
-                }
-            }
-        }
-
-        if (e.target.className.indexOf('button-all') != -1) {
-            let buttons = this.querySelectorAll(".money .button-all");
-            for (let i=0; i<buttons.length; i++) {
-                if (e.target == buttons[i] && !players[i+1].handCards[0].isPass) {  
-                    players[i+1].moneyOnTable += players[i+1].money
-                    players[i+1].money -= players[i+1].money
-                    gameTable.updateMoneyPlayer1();
-                }
-            }
-        }
+        })
     });
 }
 

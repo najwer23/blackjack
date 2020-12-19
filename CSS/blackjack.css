@@ -93,10 +93,6 @@ body {
     cursor: pointer;
 }
 
-.money {
-    width: 20%;
-}
-
 .button-money {
     margin-top: 15px;
     text-transform: uppercase;
@@ -124,6 +120,12 @@ body {
     font-size: 16px;
 }
 
+.money {
+    margin-top: 20px;
+    width: 20%;
+    margin-left: 70px;
+}
+
 .player-cards-column-left {
     width: 40%;
 }
@@ -138,7 +140,7 @@ body {
     display: inline-block;
 }
 .player-cards-column-right {
-    width: 40%;
+    width: 30%;
     display: none;
 }
 
