@@ -116,8 +116,9 @@ class GameTable {
             this.players[i].handCards[1].cards = [];
         }
         
+        this.getCardFromDeck(this.players[0].name);
 
-        for (let i=0; i< this.players.length; i++) {
+        for (let i=1; i< this.players.length; i++) {
             this.getCardFromDeck(this.players[i].name);
             this.getCardFromDeck(this.players[i].name);
         }
