@@ -149,7 +149,6 @@ class GameTable {
                         resultText = "WIN"
                         console.log(j + "gracz wygral");
                     } else if ((croupierSumCards <= this.blackjack && playerSumCards < croupierSumCards) || (playerSumCards > this.blackjack)) {
-                        players[i].money -= players[i].moneyOnTable;
                         players[i].moneyOnTable = 0;
                         resultText = "DEFATED"
                         console.log(j + "croupier wygral");
@@ -205,14 +204,14 @@ class GameTable {
         let card2 = player.handCards[0].cards.pop();
         let card1 = player.handCards[0].cards[0];
         let handleColumnElement = document.querySelector(".player-cards-column-right");
-        player.isSplit = true;
     
         if (card2.name === card1.name) {
-            console.log("Splitted cards");
+            player.isSplit = true;
+            document.querySelectorAll(".player-cards-column-left .game-result")[0].innerHTML = "SPLITTED";
             player.handCards[1].cards.push(card2);
             handleColumnElement.style.display = "block";
         } else {
-            console.log("I can't split cards");
+            document.querySelectorAll(".player-cards-column-left .game-result")[0].innerHTML = "CAN'T SPLIT";
             player.handCards[0].cards.push(card2);
         }
     
@@ -307,6 +306,8 @@ window.onload = function () {
                 new Player("Croupier"),
                 new Player("Player", players[1].money),
             ];
+            document.querySelectorAll(".player-cards-column-left .game-result")[0].innerHTML = "";
+            document.querySelectorAll(".player-cards-column-right .game-result")[0].innerHTML = "";
         
             gameTable = new GameTable(players);
             runBlackjack(gameTable);

@@ -29,13 +29,17 @@
                 <div class="player">
                     <div class="player-title"><p>Player <button type="button" class="button-new-game">New game</button></p></div> 
                     <div class="money">
-                        <div>
-                            <h1>Your money!</h1>
-                            <div>
-                                <p>Table: <span id="player-money-on-table">0 $</span></p>
-                                <p>Pocket: <span id="player-money">1000 $</span></p>    
-                            </div>
-                        </div>
+                        <h1>Your money!</h1>
+                        <table style="width:100%">
+                            <tr>
+                                <th>Pocket</th>
+                                <th>Table</th> 
+                            </tr>
+                            <tr>
+                                <td><span id="player-money">1000 $</span></td>
+                                <td><span id="player-money-on-table">0 $</span></td>
+                            </tr>
+                        </table>
                         <button type="button" class="button-10 button-money">10 $</button>
                         <button type="button" class="button-50 button-money">50 $</button>
                         <button type="button" class="button-100 button-money">100 $</button>
