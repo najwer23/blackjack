@@ -8,9 +8,11 @@ class Card {
 }
 
 class Player {
-    constructor(name) {
+    constructor(name,money) {
         this.name = name;
         this.isSplit = false;
+        this.money = money;
+        this.moneyOnTable = 0;
         this.handCards = [ 
             { 
                 "cards": new Array(), 
@@ -50,16 +52,16 @@ class GameTable {
 
     load13JsonCards(suit) {
         let cardsJson = [
-            { "suit": suit, "name": "Ace", "value": 1, "srcName": suit+"_Ace.png"},
-            { "suit": suit, "name": "2", "value": 2, "srcName": suit+"_2.png" },
-            { "suit": suit, "name": "3", "value": 3, "srcName": suit+"_3.png" },
-            { "suit": suit, "name": "4", "value": 4, "srcName": suit+"_4.png" },
-            { "suit": suit, "name": "5", "value": 5, "srcName": suit+"_5.png" },
-            { "suit": suit, "name": "6", "value": 6, "srcName": suit+"_6.png" },
-            { "suit": suit, "name": "7", "value": 7, "srcName": suit+"_7.png" },
-            { "suit": suit, "name": "8", "value": 8, "srcName": suit+"_8.png" },
-            { "suit": suit, "name": "9", "value": 9, "srcName": suit+"_9.png" },
-            { "suit": suit, "name": "10", "value": 10, "srcName": suit+"_10.png" },
+            // { "suit": suit, "name": "Ace", "value": 1, "srcName": suit+"_Ace.png"},
+            // { "suit": suit, "name": "2", "value": 2, "srcName": suit+"_2.png" },
+            // { "suit": suit, "name": "3", "value": 3, "srcName": suit+"_3.png" },
+            // { "suit": suit, "name": "4", "value": 4, "srcName": suit+"_4.png" },
+            // { "suit": suit, "name": "5", "value": 5, "srcName": suit+"_5.png" },
+            // { "suit": suit, "name": "6", "value": 6, "srcName": suit+"_6.png" },
+            // { "suit": suit, "name": "7", "value": 7, "srcName": suit+"_7.png" },
+            // { "suit": suit, "name": "8", "value": 8, "srcName": suit+"_8.png" },
+            // { "suit": suit, "name": "9", "value": 9, "srcName": suit+"_9.png" },
+            // { "suit": suit, "name": "10", "value": 10, "srcName": suit+"_10.png" },
             { "suit": suit, "name": "Jack", "value": 10, "srcName": suit+"_Jack.png" },
             { "suit": suit, "name": "Queen", "value": 10, "srcName": suit+"_Queen.png" },
             { "suit": suit, "name": "King", "value": 10, "srcName": suit+"_King.png" }       
@@ -182,17 +184,29 @@ class GameTable {
     splitCardsPlayer(player) {
         let card2 = player.handCards[0].cards.pop();
         let card1 = player.handCards[0].cards[0];
+        let handleColumnElement = document.querySelector(".player-cards-column-right");
         player.isSplit = true;
     
         if (card2.name === card1.name) {
             console.log("Splitted cards");
             player.handCards[1].cards.push(card2);
+            handleColumnElement.style.display = "block";
         } else {
             console.log("I can't split cards");
             player.handCards[0].cards.push(card2);
         }
     
         return player;
+    }
+
+    updateMoneyPlayer1() {
+        let players = this.players;
+
+        let playerMoneyOnTheTable = document.querySelectorAll("#player-money-on-table")[0];
+        let playerMoney = document.querySelectorAll("#player-money")[0];
+
+        playerMoneyOnTheTable.innerHTML = players[1].moneyOnTable + " $";
+        playerMoney.innerHTML = players[1].money + " $";
     }
 
     updateCardsSumForBlackjack() {
@@ -257,7 +271,7 @@ window.onload = function () {
     
     let players = [
         new Player("Croupier"),
-        new Player("Player"),
+        new Player("Player", 1000),
     ];
 
     let gameTable = new GameTable(players);
@@ -270,6 +284,7 @@ function runBlackjack(gameTable) {
     let players = gameTable.players;
     gameTable.updateCardsSumForBlackjack();
     gameTable.updateCardsOnTheTableForBlackjack();
+    let m;
 
     document.querySelector("#players").addEventListener('click', function (e) {
 
@@ -322,7 +337,57 @@ function runBlackjack(gameTable) {
             for (let i=0; i<buttons.length; i++) {
                 if (e.target == buttons[i] && !players[i+1].isSplit && !players[i+1].handCards[0].isPass) {
                     players[i+1] = gameTable.splitCardsPlayer(players[i+1]);
+                    gameTable.updateCardsSumForBlackjack();
                     gameTable.updateCardsOnTheTableForBlackjack();
+                }
+            }
+        }
+
+
+        // money
+        if (e.target.className.indexOf('button-10') != -1) {
+            let buttons = this.querySelectorAll(".money .button-10");
+            m = 10;
+            for (let i=0; i<buttons.length; i++) {
+                if (e.target == buttons[i] && !players[i+1].handCards[0].isPass) {
+                    players[i+1].moneyOnTable += players[i+1].money >= m ? m : 0;
+                    players[i+1].money -= players[i+1].money >= m ? m : 0;  
+                    gameTable.updateMoneyPlayer1();
+                }
+            }
+        }
+
+        if (e.target.className.indexOf('button-50') != -1) {
+            let buttons = this.querySelectorAll(".money .button-50");
+            m = 50
+            for (let i=0; i<buttons.length; i++) {
+                if (e.target == buttons[i] && !players[i+1].handCards[0].isPass) {  
+                    players[i+1].moneyOnTable += players[i+1].money >= m ? m : 0;
+                    players[i+1].money -= players[i+1].money >= m ? m : 0;  
+                    gameTable.updateMoneyPlayer1(); 
+                }
+            }
+        }
+
+        if (e.target.className.indexOf('button-100') != -1) {
+            let buttons = this.querySelectorAll(".money .button-100");
+            m = 100;
+            for (let i=0; i<buttons.length; i++) {
+                if (e.target == buttons[i] && !players[i+1].handCards[0].isPass) {  
+                    players[i+1].moneyOnTable += players[i+1].money >= m ? m : 0;
+                    players[i+1].money -= players[i+1].money >= m ? m : 0;  
+                    gameTable.updateMoneyPlayer1();
+                }
+            }
+        }
+
+        if (e.target.className.indexOf('button-all') != -1) {
+            let buttons = this.querySelectorAll(".money .button-all");
+            for (let i=0; i<buttons.length; i++) {
+                if (e.target == buttons[i] && !players[i+1].handCards[0].isPass) {  
+                    players[i+1].moneyOnTable += players[i+1].money
+                    players[i+1].money -= players[i+1].money
+                    gameTable.updateMoneyPlayer1();
                 }
             }
         }
